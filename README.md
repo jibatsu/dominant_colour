@@ -36,7 +36,11 @@ To run the powershell script open powershell ISE (installed by default in Window
 set-executionpolicy remotesigned
 ```
 
+![powershell](https://user-images.githubusercontent.com/7764932/158216919-5be43d5e-6b9e-455c-8747-5aadc71c5cee.png)
+
 Open the .ps1 file and change the paths for 'Source' and 'Destination'. Click the green 'Run' arrow on the ribbon, or hit 'F5'.
+
+![powershell2](https://user-images.githubusercontent.com/7764932/158216948-8555d768-4d3f-417c-a1d8-be459c798fd8.png)
 
 Below you will see my folder full of images. This is what we are going to try and sort by colour:
 

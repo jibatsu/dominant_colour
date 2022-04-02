@@ -192,6 +192,7 @@ with open('%s/%s\log.txt' % (fullpath, efolder), 'w', encoding="utf-8") as outpu
     for entry in sorted_list:
         output_file.write(entry + '\n')
 
+cprint('Loading images...', 'magenta')
 # load images and resize to (100, 100)
 images = [Image.open(name).resize((100, 100)) for name in filenames]
 

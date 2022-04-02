@@ -1,6 +1,6 @@
-"Recursively looks through a folder structure and pulls out each .jpg and renames in to the grandparent and parent folder names then chucks them in the destination foolder."
-	$sourcePath  = 'C:\Source'
-	$destination = 'C:\Destination'
+"Recursively looks through a folder structure and pulls out each .jpg and renames in to the grandparent and parent folder names then chucks them in the destination folder."
+	$sourcePath  = 'C:\Users\<user>\Pictures'
+	$destination = 'C:\Users\<user>\Pictures\dump'
 
 	# if the destination folder does not already exist, create it
 		$null = New-Item -Path $destination -ItemType Directory

@@ -11,6 +11,10 @@ import os
 import glob
 import imageio
 import math
+import colorama
+colorama.init()
+
+Image.MAX_IMAGE_PIXELS = None
 
 cprint('*****************************************************************************', 'green')
 cprint('***    Dominant Colour and sorting script | https://github.com/jibatsu    ***', 'green')
@@ -98,7 +102,9 @@ for file in os.listdir(directory):
         s = float(phsv[1])
         v = float(phsv[2])
 
-        h = (h*360)+0.01 #+0.01 ensures there are no 0.0 floats
+        h = (h*360) 
+        if h != 360:
+            h += 0.01 #+0.01 ensures there are no 0.0 floats
         h = round(h,2)
 
         print('H=%3f S=%3f V=%3f' % (h,s,v))
@@ -127,8 +133,8 @@ for file in os.listdir(directory):
 
         t_files -= 1
 
-# Config:
-images_dir = ('%s/%s' % (fullpath, efolder))
+# Pre Config: This will count the number of 'real' pictures and calculate the size of the sqaure
+images_dir = ('%s\%s' % (fullpath, efolder))
 images_list = sorted(os.listdir(images_dir))
 images_count = len(images_list)
 #print('Images: ', images_list)
@@ -137,11 +143,38 @@ print('Images count: ', images_count)
 # Calculate the grid size:
 grid_size = math.ceil(math.sqrt(images_count))
 
-cprint('Grid size:', 'cyan', attrs=['bold'])
+cprint('Grid size: %s' % grid_size,'cyan', attrs=['bold'])
 
 mod = grid_size**2 % images_count
 
-#print('mod = %s' % mod)
+cprint('mod: %s' % mod,'red', attrs=['bold'])
+
+blank = Image.new('RGB', (100, 100))
+
+# Create blank spaces to fill out the modulus 
+blanks = []
+n = 0
+for m in range(mod):
+    blank.save('%s/%s\\999 blank%s.jpg' % (fullpath, efolder, n))
+    blanks.append('999 blank%s' % n)
+    n += 1
+
+# true Config: This counts the number of 'real' files + blanks and calculates the square again. 
+# This should be the same size as the first calculated square.
+images_dir = ('%s\%s' % (fullpath, efolder))
+images_list = sorted(os.listdir(images_dir))
+images_count = len(images_list)
+#print('Images: ', images_list)
+print('Images count: ', images_count)
+
+# Calculate the grid size:
+grid_size = math.ceil(math.sqrt(images_count))
+
+cprint('Grid size: %s' % grid_size,'cyan', attrs=['bold'])
+
+mod = grid_size**2 % images_count
+
+cprint('mod: %s' % mod,'red', attrs=['bold'])
 
 # get arguments
 sorted_list = sorted(images_list, key=lambda s: float(s.split(" ")[0].replace('.jpg','')))
@@ -168,15 +201,33 @@ new_image = Image.new('RGB', (cols*100, rows*100))
 # put thumbnails on the 'canvas'
 i = 0
 for y in range(rows):
-    if i >= (len(images)-5):
+    if i >= (len(images)):
         break
     y *= 100
     for x in range(cols):
         x *= 100
-        img = images[i-mod]
+        img = images[i]
         new_image.paste(img, (x, y, x+100, y+100))
         i += 1
+
+
+# crop it
+xarea = cols*100
+rarea = ((rows*100)-100)
+area = (0,0,xarea,rarea)
+new_image = new_image.crop(area)
 
 # save it
 new_image.save('%s/%s\%s.jpg' % (fullpath, efolder, oname))
 cprint('Sorted grid saved as %s\%s\%s.jpg' % (fullpath, efolder, oname), 'yellow', attrs=['bold'])
+
+# delete blanks
+import re
+directory = images_dir
+pattern = "999 blank"
+files_in_directory = os.listdir(directory)
+filtered_files = [file for file in files_in_directory if ( re.search(pattern,file))]
+for file in filtered_files:
+    path_to_file = os.path.join(directory, file)
+    os.remove(path_to_file)
+

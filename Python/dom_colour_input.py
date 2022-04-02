@@ -195,11 +195,11 @@ with open('%s/%s\log.txt' % (fullpath, efolder), 'w', encoding="utf-8") as outpu
 # load images and resize to (100, 100)
 images = [Image.open(name).resize((100, 100)) for name in filenames]
 
-cprint('Creating canvas...', 'Green')
+cprint('Creating canvas...', 'green')
 # create empty 'canvas' to put thumbnails
 new_image = Image.new('RGB', (cols*100, rows*100))
 
-cprint('Pasting images onto canvas...', 'Yellow', attrs=['bold'])
+cprint('Pasting images onto canvas...', 'yellow', attrs=['bold'])
 # put thumbnails on the 'canvas'
 i = 0
 for y in range(rows):

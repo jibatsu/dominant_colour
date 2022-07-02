@@ -50,7 +50,7 @@ Below you will see my folder full of images. This is what we are going to try an
 
 ## Step 2
 
-Next you will need to install Python3.7 if you haven't already. You can find it here: https://www.python.org/downloads/release/python-370/ (Scroll to the bottom)
+Next you will need to install Python3.10 if you haven't already. You can find it here: https://www.python.org/downloads/release/python-3105/ (Scroll to the bottom)
 
 Once installed you will need to install some extra packages to make the script work. There is a requirements.txt located in the Python folder of this project.
 

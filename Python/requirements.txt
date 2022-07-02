@@ -4,7 +4,7 @@ fonttools==4.30.0
 imageio==2.16.1
 kiwisolver==1.3.2
 matplotlib==3.5.1
-numpy==1.22.2
+numpy==1.23.0
 opencv-python==4.5.5.62
 packaging==21.3
 Pillow==9.0.1

@@ -73,7 +73,6 @@ for file in os.listdir(directory):
 
         cprint('Finding clusters...', 'green')
         codes, dist = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
-        #print('Cluster centres:\n', codes)
 
         vecs, dist = scipy.cluster.vq.vq(ar, codes)         # assign codes
         counts, bins = np.histogram(vecs, len(codes))    # count occurrences
@@ -92,7 +91,6 @@ for file in os.listdir(directory):
 
         # convert rgb string to hsv
         hsv = colorsys.rgb_to_hls(r/255, g/255, b/255)
-        #print(hsv)
 
         # convert hsv values to string
         peakhsv = ' '.join(format(f, '.3f') for f in hsv)
@@ -120,13 +118,7 @@ for file in os.listdir(directory):
                 output_file.write('\n')
 
         # bonus: save image using only the N most common colours
-        if kmeans == 'n':
-            newpath = '%s/%s/%s' % (fullpath,efolder,filename)
-            c = im.copy()
-            imageio.imwrite(('%s' % newpath), c)
-
-            cprint('Saved clustered image as - %s' % newpath, 'magenta', attrs=['bold'])
-        elif kmeans == 'y':
+        if kmeans == 'y':
             newpath = '%s/%s/%s_%d.jpg' % (fullpath,nfolder,filename[:-4],NUM_CLUSTERS)
             b = ar.copy()
             for i, code in enumerate(codes):
@@ -134,12 +126,6 @@ for file in os.listdir(directory):
             imageio.imwrite(('%s' % newpath), b.reshape(*shape).astype(np.uint8))
 
             cprint('Saved clustered image as - %s' % newpath, 'magenta', 'on_white', attrs=['bold'])
-
-            newpath = '%s/%s/%s' % (fullpath,efolder,filename)
-            c = im.copy()
-            imageio.imwrite(('%s' % newpath), c)
-
-            cprint('Saved clustered image as - %s' % newpath, 'magenta', attrs=['bold'])
 
         t_files -= 1
 
@@ -225,7 +211,7 @@ with open('%s/%s/log.txt' % (fullpath, efolder), 'w', encoding="utf-8") as outpu
 
 # load images and resize to (100, 100)
 cprint('Loading images...', 'magenta')
-filenames = [images_dir + '/' + x for x in sorted_filenames]
+filenames = [fullpath + '/' + x for x in sorted_filenames]
 images = [Image.open(name).resize((100, 100)) for name in filenames]
 
 # create empty 'canvas' to put thumbnails
@@ -256,20 +242,15 @@ new_image = new_image.crop(area)
 new_image.save('%s/%s.png' % (fullpath, oname))
 cprint('Sorted grid saved as %s/%s.png' % (fullpath, oname), 'yellow', attrs=['bold'])
 
-# delete blanks
-#import re
-#directory = images_dir
-#pattern = "blank "
-#files_in_directory = os.listdir(directory)
-#filtered_files = [file for file in files_in_directory if ( re.search(pattern,file))]
-#for file in filtered_files:
-#    path_to_file = os.path.join(directory, file)
-#    os.remove(path_to_file)
+
+delete = input('Would you like to delete the temorary folder? y/n: ')
+
 import shutil
 
-try:
-    shutil.rmtree(images_dir)
-except OSError as e:
-    print(e)
-else:
-    cprint('%s has been deleted successfully' % images_dir, 'red', attrs=['bold'])
+if delete == 'y':
+    try:
+        shutil.rmtree(images_dir)
+    except OSError as e:
+        print(e)
+    else:
+        cprint('%s has been deleted successfully' % images_dir, 'red', attrs=['bold'])

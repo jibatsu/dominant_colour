@@ -11,13 +11,14 @@ import os
 import glob
 import imageio
 import math
-from operator import itemgetter
+#from operator import itemgetter
+import operator
 
 fullpath = input("Enter the absolute path of your folder of images. i.e.'C:\\Users\\<user>\\Pictures\\images': ")
 #path = fullpath[:-4]
 #extension = fullpath[-4:]
 
-efolder = input('Name of the temporary folder for processed images to be placed: ')
+efolder = "Sorted" #input('Name of the temporary folder for processed images to be placed: ')
 if not os.path.exists('%s/%s' % (fullpath, efolder)):
     os.makedirs('%s/%s' % (fullpath, efolder))
 
@@ -37,8 +38,8 @@ basewidth = input('Size in pixels for resizing of images for processing. Larger 
 
 bands = int(input('How many colour bands would you like in the output image? 8 is recommended:'))
 
+cprint('Additional copies of the files can be saved with the number of clusters used at the end. e.g. "Autumn Leaves_5.jpg"', 'blue', attrs=['bold'])
 kmeans = input('Would you like to save an additional copy of the kmeans image in a sperate folder? y/n: ')
-cprint('Files will be saved with the number of clusters used at the end. e.g. "Autumn Leaves_5.jpg"', 'blue', attrs=['bold'])
 
 if kmeans == 'y':
     nfolder = input('Name of the folder for kmeans processed images to be placed: ')
@@ -118,8 +119,14 @@ for file in os.listdir(directory):
                 output_file.write('\n')
 
         # bonus: save image using only the N most common colours
-        if kmeans == 'y':
-            newpath = '%s/%s/%s_%d.jpg' % (fullpath,nfolder,filename[:-4],NUM_CLUSTERS)
+        if kmeans == 'n':
+            newpath = '%s/%s/%s %s' % (fullpath,efolder,h,filename)
+            c = im.copy()
+            imageio.imwrite(('%s' % newpath), c)
+
+            cprint('Saved clustered image as - %s' % newpath, 'magenta', attrs=['bold'])
+        elif kmeans == 'y':
+            newpath = '%s/%s/%s_%s_%d.jpg' % (fullpath,nfolder,h,filename[:-4],NUM_CLUSTERS)
             b = ar.copy()
             for i, code in enumerate(codes):
                 b[scipy.r_[np.where(vecs==i)],:] = code
@@ -127,17 +134,23 @@ for file in os.listdir(directory):
 
             cprint('Saved clustered image as - %s' % newpath, 'magenta', 'on_white', attrs=['bold'])
 
+            newpath = '%s/%s/%s %s' % (fullpath,efolder,h,filename)
+            c = im.copy()
+            imageio.imwrite(('%s' % newpath), c)
+
+            cprint('Saved clustered image as - %s' % newpath, 'magenta', attrs=['bold'])
+
         t_files -= 1
 
 # Pre Config: This will count the number of 'real' pictures and calculate the size of the sqaure
-images_dir = ('%s/%s' % (fullpath, efolder))
+images_dir = ('%s\%s' % (fullpath, efolder))
 images_count = len(proc_list_rgb)
 print('Images count: ', images_count)
 
 #Sort types | Hue, Luminosity & Old Hue
 if sort_type == 'h':
     def step (r,g,b,repetitions):
-        lum = math.sqrt( .241 * r + .691 * g + .068 * b )
+        lum = math.sqrt( .299 * r + .587 * g + .114 * b )
 
         h, s, v = colorsys.rgb_to_hsv(r,g,b)
 
@@ -155,14 +168,16 @@ if sort_type == 'h':
 
 if sort_type == 'l':
     def lum (r,g,b):
-        return math.sqrt( .241 * r + .691 * g + .068 * b )
+        return math.sqrt( .299 * r + .587 * g + .114 * b )
     proc_list_rgb.sort(key=lambda rgb: lum(rgb[1],rgb[2],rgb[3]))
 
 sorted_list_rgb = proc_list_rgb
 
 if sort_type == 'o':
     images_count = len(proc_list)
-    sorted_list = sorted(proc_list, key=itemgetter(1))
+    sorted_list = sorted(proc_list, key = operator.itemgetter(1))
+    #sorted_list.sort(key = operator.itemgetter(2), reverse=True)
+
     sorted_list_rgb = sorted_list
 
 # Calculate the grid size:
@@ -178,9 +193,9 @@ blank = Image.new('RGB', (100, 100))
 blanks = []
 n = 0
 for m in range(mod):
-    blank.save('%s/%s/blank %s.jpg' % (fullpath, efolder, n))
+    blank.save('%s/blankx %s.jpg' % (fullpath, n))
     n_string = str(n)
-    blanks = 'blank ' + n_string + '.jpg'
+    blanks = 'blankx ' + n_string + '.jpg'
     blank_tup = '999','999','999','999',blanks
     sorted_list_rgb.append(blank_tup)
     n += 1
@@ -242,8 +257,18 @@ new_image = new_image.crop(area)
 new_image.save('%s/%s.png' % (fullpath, oname))
 cprint('Sorted grid saved as %s/%s.png' % (fullpath, oname), 'yellow', attrs=['bold'])
 
+import re 
 
-delete = input('Would you like to delete the temorary folder? y/n: ')
+directory = fullpath
+pattern = "blankx"
+files_in_directory = os.listdir(fullpath)
+filtered_files = [file for file in files_in_directory if ( re.search(pattern,file))]
+for file in filtered_files:
+    path_to_file = os.path.join(directory, file)
+    os.remove(path_to_file)
+
+
+delete = input('Would you like to delete the temporary folder? y/n: ')
 
 import shutil
 
